@@ -152,7 +152,7 @@ Lbl.TextXAlignment         = Enum.TextXAlignment.Left
 Lbl.ZIndex                 = 4
 
 local DescLbl = Instance.new("TextLabel", Row)
-DescLbl.Text                   = "Health locked at max — you cannot die"
+DescLbl.Text                   = "Health locked at max."
 DescLbl.Font                   = Enum.Font.Gotham
 DescLbl.TextSize               = 9
 DescLbl.TextColor3             = Color3.fromRGB(100, 130, 160)
@@ -185,7 +185,7 @@ Instance.new("UICorner", PillDot).CornerRadius = UDim.new(1, 0)
 local function refresh()
     if state then
         PillBg.BackgroundColor3  = Color3.fromRGB(0, 60, 40)
-        PillText.Text            = "ON"
+        PillText.Text            = ""
         PillText.TextColor3      = Color3.fromRGB(0, 255, 140)
         PillDot.BackgroundColor3 = Color3.fromRGB(0, 255, 140)
         PillDot.Position         = UDim2.new(1, -20, 0.5, -8)
@@ -193,7 +193,7 @@ local function refresh()
         Row.BackgroundColor3     = Color3.fromRGB(14, 22, 18)
     else
         PillBg.BackgroundColor3  = Color3.fromRGB(50, 15, 15)
-        PillText.Text            = "OFF"
+        PillText.Text            = ""
         PillText.TextColor3      = Color3.fromRGB(200, 60, 60)
         PillDot.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
         PillDot.Position         = UDim2.new(0, 4, 0.5, -8)
