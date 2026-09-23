@@ -3187,15 +3187,60 @@ do
     KH.Move = Move
 
     -- ======================================================== SPEED / JUMP
-    -- Re-applied continuously because MM2 resets WalkSpeed on respawn and when
-    -- rounds change; a one-shot assignment silently stops working.
+    -- Re-applied continuously while KittyHub's own speed feature is enabled.
+    --
+    -- Compatibility patch:
+    -- Do NOT force WalkSpeed back to 16 while KittyHub speed is disabled.
+    -- Other scripts (for example Infinite Yield) may intentionally own WalkSpeed.
+    -- We only restore a value that KittyHub itself replaced.
+    local speedOwnerHum = nil
+    local speedPrevious = nil
+    local speedApplied = false
+    local speedAppliedValue = nil
+
     function Move.applyHumanoid()
         local hum = U.myHum()
-        if not hum then return end
-        if S.Move.SpeedEnabled and S.Move.SpeedMode == "Humanoid" then
-            if hum.WalkSpeed ~= S.Move.Speed then hum.WalkSpeed = S.Move.Speed end
-        elseif hum.WalkSpeed ~= 16 and not S.Move.SpeedEnabled then
-            hum.WalkSpeed = 16
+        if not hum then
+            speedOwnerHum = nil
+            speedPrevious = nil
+            speedApplied = false
+            speedAppliedValue = nil
+            return
+        end
+
+        -- Respawn/new Humanoid: forget ownership from the old character.
+        if speedOwnerHum ~= hum then
+            speedOwnerHum = hum
+            speedPrevious = nil
+            speedApplied = false
+            speedAppliedValue = nil
+        end
+
+        local wantsHumanoidSpeed = S.Move.SpeedEnabled and S.Move.SpeedMode == "Humanoid"
+
+        if wantsHumanoidSpeed then
+            -- Capture whatever speed existed before KittyHub took control.
+            -- This may be Roblox's default, Infinite Yield, or another script.
+            if not speedApplied then
+                speedPrevious = hum.WalkSpeed
+                speedApplied = true
+            end
+
+            if hum.WalkSpeed ~= S.Move.Speed then
+                hum.WalkSpeed = S.Move.Speed
+            end
+            speedAppliedValue = S.Move.Speed
+
+        elseif speedApplied then
+            -- KittyHub is releasing control. Restore the previous value only
+            -- if nobody else changed WalkSpeed after our last assignment.
+            if speedAppliedValue ~= nil and hum.WalkSpeed == speedAppliedValue then
+                hum.WalkSpeed = speedPrevious or hum.WalkSpeed
+            end
+
+            speedPrevious = nil
+            speedApplied = false
+            speedAppliedValue = nil
         end
 
         -- R15 humanoids may be driven by JumpHeight rather than JumpPower;
